@@ -16,4 +16,5 @@ Changelog from Original NSRLConvert by Chris Lees:
 
     Usage:
     python script.py [input database] [output textfile] [hash_type]
+    
     hash_type is optional, but can be 'md5' (default) or 'sha1'
