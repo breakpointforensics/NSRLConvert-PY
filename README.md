@@ -16,13 +16,16 @@ Changelog from Original NSRLConvert by Chris Lees:
   - Added support for MD5 or SHA1 conversion from db file.
   - Added support for output to ProjectVIC style JSON as alternate to text file.
 
-    Requirements:
+**Requirements:
+**    
     Python 3.11 or newer
     Dependancy: UJSON Python Module
+    
     (pip install ujson)
     
-    Usage:
-    python script.py [input database] [output textfile] [hash_type] [output_format]
+**    Usage:
+**    
+python script.py [input database] [output textfile] [hash_type] [output_format]
     
     hash_type is optional, but can be 'md5' (default) or 'sha1'
     output_format is optional, can be 'text' (default) or 'json'(ProjectVIC)
