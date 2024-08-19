@@ -19,9 +19,10 @@ Changelog from Original NSRLConvert by Chris Lees:
 **Requirements:
 **    
     Python 3.11 or newer
+    
     Dependancy: UJSON Python Module
     
-    (pip install ujson)
+    pip install ujson
     
 **    Usage:
 **    
