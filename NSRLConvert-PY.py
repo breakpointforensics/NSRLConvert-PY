@@ -2,13 +2,14 @@ import sqlite3
 import time
 import sys
 import threading
+import ujson
 
 # Author: David Haddad
 # Breakpoint Forensics
 # Full Credit to Chris Lees for original research and C-based tool @ https://askclees.com/2023/04/05/importing-nsrl-v3-hashsets-into-legacy-tools/ 
 # Script: NSRLConvert-PY.py
 # Date: 19-08-2024
-# Version: 1.0
+# Version: 1.1
 
 # SQLite PRAGMA statements to optimize performance
 pragma = [
@@ -33,8 +34,9 @@ def set_pragma(db):
 def print_usage():
     """Displays usage instructions for the script."""
     print("Usage:")
-    print("\npython script.py [input database] [output textfile] [hash_type]")
-    print("hash_type is optional, but can be 'md5' (default) or 'sha1'.")
+    print("\npython script.py [input database] [output file] [hash_type] [output_format]")
+    print("hash_type is optional, can be 'md5' (default) or 'sha1'.")
+    print("output_format is optional, can be 'text' (default) or 'json'(ProjectVIC).")
 
 def progress_meter(total_rows, processed_rows):
     """Displays a progress meter that updates every 5 seconds."""
@@ -62,21 +64,28 @@ def get_view_name(cursor):
         raise ValueError("Neither 'DISTINCT_HASH' nor 'FILE' view found in the database.")
 
 def main(argv):
-    if len(argv) < 3 or len(argv) > 4:
-        print(f"{len(argv)-1} arguments given, 2 or 3 expected")
+    if len(argv) < 3 or len(argv) > 5:
+        print(f"{len(argv)-1} arguments given, 2 to 4 expected")
         print_usage()
         return
 
-    # Determine the hash type: md5 (default) or sha1
-    hash_type = argv[3] if len(argv) == 4 else 'md5'
+    hash_type = argv[3] if len(argv) >= 4 else 'md5'
     hash_type = hash_type.lower()
     if hash_type not in ['md5', 'sha1']:
         print("Invalid hash type specified. Use 'md5' or 'sha1'.")
         print_usage()
         return
 
-    # Determine the column index based on the hash type
+    output_format = argv[4] if len(argv) == 5 else 'text'
+    output_format = output_format.lower()
+    if output_format not in ['text', 'json']:
+        print("Invalid output format specified. Use 'text' or 'json'.")
+        print_usage()
+        return
+
+    # Determine the column index and JSON key based on the hash type
     hash_column = 2 if hash_type == 'md5' else 1
+    hash_key = hash_type.upper()  # JSON key will be 'MD5' or 'SHA1'
     print(f'Hash Format Selected: {hash_type}')
 
     print_time("Start Time is:")
@@ -89,7 +98,6 @@ def main(argv):
         print(f"Can't open database: {e}")
         return
 
-    # Apply performance optimizations
     set_pragma(db)
 
     try:
@@ -115,15 +123,31 @@ def main(argv):
         chunk_size = 10000000  # Default chunk size of 10 million rows
         cursor.execute(f"SELECT * from {view_name};")
 
-        with open(argv[2], "w") as md5:
+        if output_format == 'json':
+            results = {"@odata.context": "http://github.com/VICSDATAMODEL/ProjectVic/DataModels/2.0.xml/Default/$metadata#Media", "value": []}
+            media_id = 1
+
+        with open(argv[2], "w") as output_file:
             while True:
                 rows = cursor.fetchmany(chunk_size)
                 if not rows:
                     break
                 for row in rows:
-                    data = row[hash_column]  # Write the hash value to the output file
-                    md5.write(data + "\n")
+                    hash_value = row[hash_column]
+                    if output_format == 'text':
+                        output_file.write(hash_value + "\n")
+                    elif output_format == 'json':
+                        results["value"].append({
+                            "MediaID": media_id,
+                            "Category": 0,
+                            hash_key: hash_value  # JSON key is now dynamic
+                        })
+                        media_id += 1
                     processed_rows[0] += 1
+
+            if output_format == 'json':
+                print('Writing JSON to Disk')
+                ujson.dump(results, output_file,indent=4, escape_forward_slashes=False)
 
         # Wait for the progress meter thread to finish
         progress_thread.join()
