@@ -16,7 +16,12 @@ Changelog from Original NSRLConvert by Chris Lees:
   - Added support for MD5 or SHA1 conversion from db file.
   - Added support for output to ProjectVIC style JSON as alternate to text file.
 
-**Requirements:
+Available as compiled Windows executable here:
+https://breakpointforensics.com/tools/
+
+or Native Python:
+
+**Python Requirements:
 **    
     Python 3.11 or newer
     
