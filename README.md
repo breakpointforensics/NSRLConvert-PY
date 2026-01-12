@@ -41,9 +41,11 @@ or Native Python:
 **    
     Python 3.11 or newer
     
-    Dependancy: UJSON Python Module
+    Dependancy: UJSON Python Module and FreeSimpleGUI(Optional) for GUI Support
     
     pip install ujson
+    pip install FreeSimpleGUI
+
     
 **    Usage:
 **    
