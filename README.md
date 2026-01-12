@@ -9,12 +9,19 @@ NSRL (National Software Reference Library) RDS Hash Set Converter (Python Implem
 # Vesion: 1.3
 
 1.2/1.3 Changelog
+
   -Added support for parsing NSRL Delta .SQL Files
+  
   -Added logic to auto correct input file if users select schema file instead.
+  
   -Added logging
+  
   -Added default GUI
+  
   -Retains full CLI support
+  
   -Progress meter logic updates and faster processing time by estimating total hashes by file-size instead of running expensive count operation.
+  
   -Added hash deduplication option '--dedup', (defaulted on in GUI), across all supported file formats. (Results in significantly further reduced end file-size)
 
 1.1 Changelog from Original NSRLConvert by Chris Lees:
